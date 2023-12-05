@@ -1,107 +1,56 @@
-import { Button, Col, Row } from 'react-bootstrap'
-import AuthLayout from '../AuthLayout'
-import { Link } from 'react-router-dom'
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import useRegister from './useRegister'
+import { Col, Row } from 'react-bootstrap'
+import Statistics from './Statistics'
+import WeeklySelesChart from './WeeklySelesChart'
+import YearlySelesChart from './YearlySelesChart'
+import ChatList from './ChatList'
+import Projects from './Projects'
 
-// Components
-import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
+// componets
+import { PageBreadcrumb } from '@/components'
 
-interface UserData {
-	fullname: string
-	email: string
-	password: string
-}
-const BottomLink = () => {
-	return (
-		<Row>
-			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis">
-					Already have account?{' '}
-					<Link
-						to="/auth/login"
-						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
-					>
-						<b>Log In</b>
-					</Link>
-				</p>
-			</Col>
-		</Row>
-	)
-}
-const Register = () => {
-	const { loading, register } = useRegister()
+// data
+import { chatMessages, statistics } from './data'
 
-	/*
-	 * form validation schema
-	 */
-	const schemaResolver = yupResolver(
-		yup.object().shape({
-			fullname: yup.string().required('Please enter Fullname'),
-			email: yup
-				.string()
-				.required('Please enter Email')
-				.email('Please enter valid Email'),
-			password: yup.string().required('Please enter Password'),
-		})
-	)
-
+const Dashboard = () => {
 	return (
 		<>
-			<PageBreadcrumb title="Register" />
-			<AuthLayout
-				authTitle="Free Sign Up"
-				helpText="Enter your email address and password to access account."
-				bottomLinks={<BottomLink />}
-				hasThirdPartyLogin
-			>
-				<VerticalForm<UserData> onSubmit={register} resolver={schemaResolver}>
-					<FormInput
-						label="Full Name"
-						type="text"
-						name="fullname"
-						placeholder="Enter your name"
-						containerClass="mb-3"
-						required
-					/>
+			<PageBreadcrumb title="Welcome!" subName="Dashboards" />
+			<Row>
+				{(statistics || []).map((item, idx) => {
+					return (
+						<Col xxl={3} sm={6} key={idx}>
+							<Statistics
+								title={item.title}
+								stats={item.stats}
+								change={item.change}
+								icon={item.icon}
+								variant={item.variant}
+							/>
+						</Col>
+					)
+				})}
+			</Row>
 
-					<FormInput
-						label="Email address"
-						type="text"
-						name="email"
-						placeholder="Enter your email"
-						containerClass="mb-3"
-						required
-					/>
+			<Row>
+				<Col lg={8}>
+					<WeeklySelesChart />
+				</Col>
+				<Col lg={4}>
+					<YearlySelesChart />
+				</Col>
+			</Row>
 
-					<FormInput
-						label="Password"
-						type="password"
-						name="password"
-						placeholder="Enter your password"
-						containerClass="mb-3"
-					/>
-					<FormInput
-						isTerms={true}
-						type="checkbox"
-						name="checkbox"
-						containerClass={'mb-3'}
-					/>
-					<div className="mb-0 d-grid text-center">
-						<Button
-							variant="primary"
-							disabled={loading}
-							className="fw-semibold"
-							type="submit"
-						>
-							Sign Up
-						</Button>
-					</div>
-				</VerticalForm>
-			</AuthLayout>
+			<Row>
+				<Col xl={4}>
+					<ChatList messages={chatMessages} />
+				</Col>
+
+				<Col xl={8}>
+					<Projects />
+				</Col>
+			</Row>
 		</>
 	)
 }
 
-export default Register
+export default Dashboard
